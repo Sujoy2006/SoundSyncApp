@@ -22,11 +22,25 @@ const syncBtn = document.getElementById('sync-btn');
         // Settings Menu Logic
         const settingsBtn = document.getElementById('settings-btn');
         const settingsMenu = document.getElementById('settings-menu');
+        const closeSettingsBtn = document.getElementById('close-settings-btn');
         
         settingsBtn.addEventListener('click', () => {
             const isVisible = settingsMenu.style.display === 'flex';
-            settingsMenu.style.display = isVisible ? 'none' : 'flex';
+            if (!isVisible) {
+                settingsMenu.style.display = 'flex';
+                requestAnimationFrame(() => {
+                    settingsMenu.scrollTop = 0;
+                });
+            } else {
+                settingsMenu.style.display = 'none';
+            }
         });
+
+        if (closeSettingsBtn) {
+            closeSettingsBtn.addEventListener('click', () => {
+                settingsMenu.style.display = 'none';
+            });
+        }
 
         // Hide settings when clicking outside
         document.addEventListener('click', (e) => {
@@ -36,28 +50,31 @@ const syncBtn = document.getElementById('sync-btn');
         });
 
         const palettes = {
-            'cyber-glow-obsidian': { bottom: new THREE.Color(0x090D16), mid: new THREE.Color(0x00F2FE), top: new THREE.Color(0xF59E0B) },
-            'matrix-monolith': { bottom: new THREE.Color(0x022C22), mid: new THREE.Color(0x059669), top: new THREE.Color(0x34D399) },
-            'midnight-supernova': { bottom: new THREE.Color(0x1F0A14), mid: new THREE.Color(0xE11D48), top: new THREE.Color(0x8B5CF6) },
-            'crimson-horizon': { bottom: new THREE.Color(0x14080A), mid: new THREE.Color(0xDC2626), top: new THREE.Color(0xFB7185) },
-            'cybernetic-amber': { bottom: new THREE.Color(0x0A0A0A), mid: new THREE.Color(0xD97706), top: new THREE.Color(0xFDE047) },
-            'neon-glacier': { bottom: new THREE.Color(0x030712), mid: new THREE.Color(0x0EA5E9), top: new THREE.Color(0x7DD3FC) },
-            'toxic-ultraviolet': { bottom: new THREE.Color(0x120822), mid: new THREE.Color(0x8B5CF6), top: new THREE.Color(0xBEF264) },
-            'molten-copper': { bottom: new THREE.Color(0x1C1410), mid: new THREE.Color(0xC2410C), top: new THREE.Color(0xFB923C) },
-            'cyberpunk-cobalt': { bottom: new THREE.Color(0x090D1A), mid: new THREE.Color(0x2563EB), top: new THREE.Color(0x38BDF8) },
-            'solar-eclipse': { bottom: new THREE.Color(0x121212), mid: new THREE.Color(0xEA580C), top: new THREE.Color(0xFACC15) },
-            'acid-venom': { bottom: new THREE.Color(0x051C14), mid: new THREE.Color(0x16A34A), top: new THREE.Color(0x84CC16) },
-            'royal-amethyst': { bottom: new THREE.Color(0x1A0B2E), mid: new THREE.Color(0x7C3AED), top: new THREE.Color(0xE879F9) }
+            'cyber-glow-obsidian': { name: 'Cyber Glow', bottom: new THREE.Color(0x090D16), mid: new THREE.Color(0x00F2FE), top: new THREE.Color(0xF59E0B) },
+            'matrix-monolith': { name: 'Matrix Green', bottom: new THREE.Color(0x022C22), mid: new THREE.Color(0x059669), top: new THREE.Color(0x34D399) },
+            'midnight-supernova': { name: 'Supernova', bottom: new THREE.Color(0x1F0A14), mid: new THREE.Color(0xE11D48), top: new THREE.Color(0x8B5CF6) },
+            'crimson-horizon': { name: 'Crimson Pulse', bottom: new THREE.Color(0x14080A), mid: new THREE.Color(0xDC2626), top: new THREE.Color(0xFB7185) },
+            'cybernetic-amber': { name: 'Cyber Amber', bottom: new THREE.Color(0x0A0A0A), mid: new THREE.Color(0xD97706), top: new THREE.Color(0xFDE047) },
+            'neon-glacier': { name: 'Neon Glacier', bottom: new THREE.Color(0x030712), mid: new THREE.Color(0x0EA5E9), top: new THREE.Color(0x7DD3FC) },
+            'molten-copper': { name: 'Molten Copper', bottom: new THREE.Color(0x1C1410), mid: new THREE.Color(0xC2410C), top: new THREE.Color(0xFB923C) },
+            'cyberpunk-cobalt': { name: 'Cobalt Blue', bottom: new THREE.Color(0x090D1A), mid: new THREE.Color(0x2563EB), top: new THREE.Color(0x38BDF8) },
+            'solar-eclipse': { name: 'Solar Eclipse', bottom: new THREE.Color(0x121212), mid: new THREE.Color(0xEA580C), top: new THREE.Color(0xFACC15) },
+            'acid-venom': { name: 'Acid Venom', bottom: new THREE.Color(0x051C14), mid: new THREE.Color(0x16A34A), top: new THREE.Color(0x84CC16) },
+            'royal-amethyst': { name: 'Royal Amethyst', bottom: new THREE.Color(0x1A0B2E), mid: new THREE.Color(0x7C3AED), top: new THREE.Color(0xE879F9) }
         };
 
-        const paletteSelect = document.getElementById('color-palette-select');
+        let activePaletteKey = 'cyber-glow-obsidian';
         let isAutoCycleEnabled = false;
-
         let userCustomColors = ['#00f2fe', '#f59e0b'];
 
         function applyCustomColors() {
             if (!orb || !orb.material) return;
             
+            // Enforce maximum 4 custom colors
+            if (userCustomColors.length > 4) {
+                userCustomColors = userCustomColors.slice(0, 4);
+            }
+
             const count = userCustomColors.length;
             const colors = userCustomColors.map(c => new THREE.Color(c));
             
@@ -71,12 +88,10 @@ const syncBtn = document.getElementById('sync-btn');
                 cTop = colors[1];
             } else if (count === 3) {
                 cBottom = colors[0]; cMid = colors[1]; cTop = colors[2];
-            } else if (count === 4) {
+            } else if (count >= 4) {
                 cBottom = colors[0];
                 cMid = colors[1].clone().lerp(colors[2], 0.5);
                 cTop = colors[3];
-            } else if (count >= 5) {
-                cBottom = colors[0]; cMid = colors[2]; cTop = colors[4];
             }
             
             orb.material.uniforms.uColorBottom.value.copy(cBottom);
@@ -86,59 +101,105 @@ const syncBtn = document.getElementById('sync-btn');
 
         function renderCustomColorUI() {
             const container = document.getElementById('custom-colors-container');
+            if (!container) return;
             container.innerHTML = '';
             
+            if (userCustomColors.length > 4) {
+                userCustomColors = userCustomColors.slice(0, 4);
+            }
+
             userCustomColors.forEach((color, index) => {
-                const row = document.createElement('div');
-                row.className = 'color-row';
+                const item = document.createElement('div');
+                item.className = 'custom-color-item';
                 
-                const input = document.createElement('input');
-                input.type = 'color';
-                input.className = 'color-picker';
-                input.value = color;
-                input.addEventListener('input', (e) => {
+                const swatchBtn = document.createElement('button');
+                swatchBtn.type = 'button';
+                swatchBtn.className = 'custom-color-swatch';
+
+                const dot = document.createElement('span');
+                dot.className = 'swatch-dot';
+                dot.style.backgroundColor = color;
+
+                const label = document.createElement('span');
+                label.className = 'swatch-label';
+                label.innerText = color.toUpperCase();
+
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'color';
+                hiddenInput.value = color;
+                hiddenInput.style.display = 'none';
+
+                hiddenInput.addEventListener('input', (e) => {
                     userCustomColors[index] = e.target.value;
-                    if (paletteSelect.value === 'custom') applyCustomColors();
+                    dot.style.backgroundColor = e.target.value;
+                    label.innerText = e.target.value.toUpperCase();
+                    if (activePaletteKey === 'custom') applyCustomColors();
+                });
+
+                swatchBtn.addEventListener('click', () => {
+                    hiddenInput.click();
                 });
                 
                 const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
                 removeBtn.className = 'remove-color-btn';
                 removeBtn.innerHTML = '×';
                 removeBtn.disabled = userCustomColors.length <= 1;
-                removeBtn.addEventListener('click', () => {
+                removeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     if (userCustomColors.length > 1) {
                         userCustomColors.splice(index, 1);
                         renderCustomColorUI();
-                        if (paletteSelect.value === 'custom') applyCustomColors();
+                        if (activePaletteKey === 'custom') applyCustomColors();
                     }
                 });
                 
-                row.appendChild(input);
-                row.appendChild(removeBtn);
-                container.appendChild(row);
+                swatchBtn.appendChild(dot);
+                swatchBtn.appendChild(label);
+                swatchBtn.appendChild(hiddenInput);
+
+                item.appendChild(swatchBtn);
+                item.appendChild(removeBtn);
+                container.appendChild(item);
             });
             
-            document.getElementById('add-color-btn').disabled = userCustomColors.length >= 5;
+            const addBtn = document.getElementById('add-color-btn');
+            if (addBtn) addBtn.disabled = userCustomColors.length >= 4;
         }
 
-        document.getElementById('add-color-btn').addEventListener('click', () => {
-            if (userCustomColors.length < 5) {
-                userCustomColors.push('#ffffff');
-                renderCustomColorUI();
-                if (paletteSelect.value === 'custom') applyCustomColors();
+        const addColorBtn = document.getElementById('add-color-btn');
+        if (addColorBtn) {
+            addColorBtn.addEventListener('click', () => {
+                if (userCustomColors.length < 4) {
+                    userCustomColors.push('#ffffff');
+                    renderCustomColorUI();
+                    if (activePaletteKey === 'custom') applyCustomColors();
+                }
+            });
+        }
+
+        function selectPalette(key) {
+            activePaletteKey = key;
+            const container = document.getElementById('palette-cards-container');
+            if (container) {
+                const cards = container.querySelectorAll('.palette-card');
+                cards.forEach(card => {
+                    if (card.dataset.key === key) {
+                        card.classList.add('active');
+                    } else {
+                        card.classList.remove('active');
+                    }
+                });
             }
-        });
 
-        renderCustomColorUI();
-
-        paletteSelect.addEventListener('change', (e) => {
-            if (e.target.value === 'custom') {
-                document.getElementById('custom-color-builder').style.display = 'flex';
+            const customBuilder = document.getElementById('custom-color-builder');
+            if (key === 'custom') {
+                if (customBuilder) customBuilder.style.display = 'flex';
                 if (!isAutoCycleEnabled) applyCustomColors();
             } else {
-                document.getElementById('custom-color-builder').style.display = 'none';
-                if (!isAutoCycleEnabled) {
-                    const selectedPalette = palettes[e.target.value];
+                if (customBuilder) customBuilder.style.display = 'none';
+                if (!isAutoCycleEnabled && palettes[key]) {
+                    const selectedPalette = palettes[key];
                     if (orb && orb.material) {
                         orb.material.uniforms.uColorBottom.value.copy(selectedPalette.bottom);
                         orb.material.uniforms.uColorMid.value.copy(selectedPalette.mid);
@@ -146,7 +207,62 @@ const syncBtn = document.getElementById('sync-btn');
                     }
                 }
             }
-        });
+        }
+
+        function renderPaletteCards() {
+            const container = document.getElementById('palette-cards-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            Object.keys(palettes).forEach(key => {
+                const pal = palettes[key];
+                const card = document.createElement('div');
+                card.className = `palette-card ${key === activePaletteKey ? 'active' : ''}`;
+                card.dataset.key = key;
+
+                const dot = document.createElement('div');
+                dot.className = 'palette-dot';
+                dot.style.background = `linear-gradient(135deg, #${pal.mid.getHexString()}, #${pal.top.getHexString()})`;
+
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'palette-card-name';
+                nameSpan.innerText = pal.name;
+
+                card.appendChild(dot);
+                card.appendChild(nameSpan);
+
+                card.addEventListener('click', () => {
+                    selectPalette(key);
+                });
+
+                container.appendChild(card);
+            });
+
+            // Custom palette option card
+            const customCard = document.createElement('div');
+            customCard.className = `palette-card ${activePaletteKey === 'custom' ? 'active' : ''}`;
+            customCard.dataset.key = 'custom';
+
+            const customDot = document.createElement('div');
+            customDot.className = 'palette-dot';
+            customDot.style.background = 'linear-gradient(135deg, #00f2fe, #f59e0b)';
+
+            const customName = document.createElement('span');
+            customName.className = 'palette-card-name';
+            customName.innerText = 'Custom...';
+
+            customCard.appendChild(customDot);
+            customCard.appendChild(customName);
+
+            customCard.addEventListener('click', () => {
+                selectPalette('custom');
+            });
+
+            container.appendChild(customCard);
+        }
+
+        renderCustomColorUI();
+        renderPaletteCards();
 
         const autoCycleToggle = document.getElementById('auto-cycle-toggle');
         const speedSlider = document.getElementById('cycle-speed-slider');
@@ -158,8 +274,8 @@ const syncBtn = document.getElementById('sync-btn');
         const sizeDisplay = document.getElementById('size-display');
         let particleSizeMultiplier = 1.0;
 
-        const reactivitySlider = document.getElementById('reactivity-slider');
-        const reactivityDisplay = document.getElementById('reactivity-display');
+        const sensitivitySlider = document.getElementById('sensitivity-slider');
+        const sensitivityDisplay = document.getElementById('sensitivity-display');
         let audioReactivityMultiplier = 1.0;
 
         const glowSlider = document.getElementById('glow-slider');
@@ -182,6 +298,67 @@ const syncBtn = document.getElementById('sync-btn');
         const densityDisplay = document.getElementById('density-display');
         let particleDensity = 1.0;
 
+        // Native Electron Window Maximize & Restore Synchronization
+        const { ipcRenderer } = require('electron');
+
+        function setMaximizeIconState(isMaximized) {
+            if (isMaximized) {
+                fullscreenIcon.querySelector('path').setAttribute('d', minimizePath);
+            } else {
+                fullscreenIcon.querySelector('path').setAttribute('d', maximizePath);
+            }
+        }
+
+        const minimizeBtn = document.getElementById('minimize-btn');
+        const closeBtn = document.getElementById('close-btn');
+
+        if (minimizeBtn) {
+            minimizeBtn.addEventListener('click', () => {
+                ipcRenderer.send('window-controls-minimize');
+            });
+        }
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                ipcRenderer.send('window-controls-close');
+            });
+        }
+
+        fullscreenBtn.addEventListener('click', () => {
+            ipcRenderer.send('window-controls-toggle-maximize');
+        });
+
+        ipcRenderer.on('window-maximized-state', (event, isMaximized) => {
+            setMaximizeIconState(isMaximized);
+        });
+
+        // Sync initial state on load
+        try {
+            const initialMaximized = ipcRenderer.sendSync('get-window-maximized-state');
+            setMaximizeIconState(initialMaximized);
+        } catch (e) {}
+
+        // Idle Standby Auto-Hide for Start/Stop Sync Button
+        const uiContainer = document.getElementById('ui-container');
+        let idleTimer = null;
+
+        function resetIdleTimer() {
+            if (uiContainer) {
+                uiContainer.classList.remove('idle-standby');
+            }
+            if (idleTimer) {
+                clearTimeout(idleTimer);
+            }
+            idleTimer = setTimeout(() => {
+                if (uiContainer) {
+                    uiContainer.classList.add('idle-standby');
+                }
+            }, 3000);
+        }
+
+        document.addEventListener('mousemove', resetIdleTimer);
+        resetIdleTimer();
+
         speedSlider.addEventListener('input', (e) => {
             cycleSpeedMultiplier = parseFloat(e.target.value);
             speedDisplay.innerText = cycleSpeedMultiplier.toFixed(1) + 'x';
@@ -195,9 +372,10 @@ const syncBtn = document.getElementById('sync-btn');
             }
         });
 
-        reactivitySlider.addEventListener('input', (e) => {
-            audioReactivityMultiplier = parseFloat(e.target.value);
-            reactivityDisplay.innerText = audioReactivityMultiplier.toFixed(1) + 'x';
+        sensitivitySlider.addEventListener('input', (e) => {
+            const val = parseInt(e.target.value, 10);
+            audioReactivityMultiplier = val / 50.0;
+            sensitivityDisplay.innerText = val + '%';
         });
 
         glowSlider.addEventListener('input', (e) => {
@@ -239,42 +417,89 @@ const syncBtn = document.getElementById('sync-btn');
 
         autoCycleToggle.addEventListener('change', (e) => {
             isAutoCycleEnabled = e.target.checked;
-            paletteSelect.disabled = isAutoCycleEnabled;
-            
-            if (isAutoCycleEnabled) {
-                document.getElementById('custom-color-builder').style.display = 'none';
-            } else {
-                if (paletteSelect.value === 'custom') {
-                    document.getElementById('custom-color-builder').style.display = 'flex';
-                    applyCustomColors();
+            const paletteCardsContainer = document.getElementById('palette-cards-container');
+            if (paletteCardsContainer) {
+                if (isAutoCycleEnabled) {
+                    paletteCardsContainer.style.opacity = '0.5';
+                    paletteCardsContainer.style.pointerEvents = 'none';
+                    document.getElementById('custom-color-builder').style.display = 'none';
                 } else {
-                    const selectedPalette = palettes[paletteSelect.value];
-                    if (orb && orb.material) {
-                        orb.material.uniforms.uColorBottom.value.copy(selectedPalette.bottom);
-                        orb.material.uniforms.uColorMid.value.copy(selectedPalette.mid);
-                        orb.material.uniforms.uColorTop.value.copy(selectedPalette.top);
-                    }
+                    paletteCardsContainer.style.opacity = '1.0';
+                    paletteCardsContainer.style.pointerEvents = 'auto';
+                    selectPalette(activePaletteKey);
                 }
             }
         });
 
-        fullscreenBtn.addEventListener('click', () => {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.warn(`Error attempting to enable fullscreen: ${err.message}`);
-                });
-            } else {
-                document.exitFullscreen();
-            }
-        });
+        // Reset to Default Handler
+        const resetDefaultsBtn = document.getElementById('reset-defaults-btn');
+        if (resetDefaultsBtn) {
+            resetDefaultsBtn.addEventListener('click', async () => {
+                // 1. Reset Inner Audio Mode (if currently active, trigger clean mode switch)
+                if (innerAudioToggle.checked) {
+                    innerAudioToggle.checked = false;
+                    if (audioManager.isSyncActive) {
+                        await audioManager.switchMode('outer');
+                    }
+                }
 
-        document.addEventListener('fullscreenchange', () => {
-            if (document.fullscreenElement) {
-                fullscreenIcon.innerHTML = `<path d="${minimizePath}"></path>`;
-            } else {
-                fullscreenIcon.innerHTML = `<path d="${maximizePath}"></path>`;
-            }
-        });
+                // 2. Reset Audio Sensitivity to default (50%)
+                sensitivitySlider.value = 50;
+                audioReactivityMultiplier = 1.0;
+                sensitivityDisplay.innerText = '50%';
+
+                // 3. Reset Auto-Cycle (OFF) & Speed (1.0x)
+                autoCycleToggle.checked = false;
+                isAutoCycleEnabled = false;
+                const paletteCardsContainer = document.getElementById('palette-cards-container');
+                if (paletteCardsContainer) {
+                    paletteCardsContainer.style.opacity = '1.0';
+                    paletteCardsContainer.style.pointerEvents = 'auto';
+                }
+                speedSlider.value = 1.0;
+                cycleSpeedMultiplier = 1.0;
+                speedDisplay.innerText = '1.0x';
+
+                // 4. Reset Palette to default ('cyber-glow-obsidian')
+                selectPalette('cyber-glow-obsidian');
+
+                // 5. Reset Particle Controls
+                sizeSlider.value = 1.0;
+                particleSizeMultiplier = 1.0;
+                sizeDisplay.innerText = '1.0x';
+
+                glowSlider.value = 1.0;
+                particleGlowMultiplier = 1.0;
+                glowDisplay.innerText = '1.0x';
+
+                rotationSlider.value = 1.0;
+                rotationSpeedMultiplier = 1.0;
+                rotationDisplay.innerText = '1.0x';
+
+                animSpeedSlider.value = 1.0;
+                animationSpeedMultiplier = 1.0;
+                animSpeedDisplay.innerText = '1.0x';
+
+                chaosSlider.value = 1.0;
+                chaosJumpMultiplier = 1.0;
+                chaosDisplay.innerText = '1.0x';
+
+                densitySlider.value = 100;
+                particleDensity = 1.0;
+                densityDisplay.innerText = '100%';
+
+                // 6. Update Three.js Shader Uniforms immediately
+                if (orb && orb.material) {
+                    orb.material.uniforms.uParticleSize.value = particleSizeMultiplier;
+                    orb.material.uniforms.uGlow.value = particleGlowMultiplier;
+                    orb.material.uniforms.uAnimSpeed.value = animationSpeedMultiplier;
+                    orb.material.uniforms.uChaosMult.value = chaosJumpMultiplier;
+                    if (orb.geometry) {
+                        orb.geometry.setDrawRange(0, Math.floor(particleCount * particleDensity));
+                    }
+                }
+            });
+        }
 
         const container = document.getElementById('canvas-container');
         const scene = new THREE.Scene();
@@ -930,9 +1155,9 @@ const syncBtn = document.getElementById('sync-btn');
                     orb.material.uniforms.uColorMid.value.copy(currentPal.mid).lerp(nextPal.mid, lerpFactor);
                     orb.material.uniforms.uColorTop.value.copy(currentPal.top).lerp(nextPal.top, lerpFactor);
                     
-                    // Sync the UI select so it reflects the current theme transitioning in
-                    if (paletteSelect.value !== paletteKeys[currentIndex]) {
-                        paletteSelect.value = paletteKeys[currentIndex];
+                    // Sync the UI active palette card so it reflects the current theme transitioning in
+                    if (activePaletteKey !== paletteKeys[currentIndex]) {
+                        selectPalette(paletteKeys[currentIndex]);
                     }
                 }
             }

@@ -31,3 +31,5 @@ Thumbs.db
 
 # Electron cache
 electron-builder.yml
+build/
+build/
