@@ -1,0 +1,49 @@
+{
+  "name": "soundsync",
+  "version": "1.0.0",
+  "description": "A stunning, real-time audio reactive 3D particle orb built with WebGL (Three.js). This visualizer dynamically responds to microphone or internal tab audio, creating a mesmerizing, holographic music visualizer right in your browser.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron . --no-sandbox",
+    "build:linux": "electron-builder --linux",
+    "build:win": "electron-builder --win",
+    "build": "electron-builder -mwl"
+  },
+  "build": {
+    "appId": "com.soundsync.app",
+    "productName": "SoundSync",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Audio"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sujoy2006/SoundSync.git"
+  },
+  "keywords": [],
+  "author": {
+    "name": "SoundSync Dev",
+    "email": "dev@soundsync.com"
+  },
+  "desktopName": "SoundSync",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Sujoy2006/SoundSync/issues"
+  },
+  "homepage": "https://github.com/Sujoy2006/SoundSync#readme",
+  "devDependencies": {
+    "electron": "^44.4.2",
+    "electron-builder": "^26.15.3"
+  }
+}
