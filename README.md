@@ -12,6 +12,82 @@ SoundSync is a dedicated audio visualizer application for Linux desktops. Using 
 
 ---
 
+## 📦 Installation
+
+### 🤔 Which Installation Method Should I Use?
+
+- **Debian / Ubuntu (`.deb`)** *(Recommended)*: Best for Ubuntu, Debian, Linux Mint, Pop!_OS, and derivative distribution users who want a standard installed desktop application with full system integration and application menu shortcuts.
+- **AppImage** *(Alternative)*: Best for users on Arch Linux, Fedora, openSUSE, or any distribution who prefer a standalone, portable application without traditional system package installation.
+
+---
+
+## 🐧 Recommended: Debian / Ubuntu (.deb)
+
+Follow these step-by-step instructions to install SoundSync using the official `.deb` package:
+
+### Step 1 — Open the SoundSync Repository
+Open the official [SoundSync GitHub Repository](https://github.com/Sujoy2006/SoundSyncApp) in your web browser.
+
+### Step 2 — Open Releases & Download Package
+1. On the right side of the repository page, click on **Releases**.
+2. Locate the latest SoundSync v1.0.0 release.
+3. Under the **Assets** section of the release, click on `soundsync_1.0.0_amd64.deb` to download it to your computer.
+
+### Step 3 — Open Terminal & Navigate to Downloads
+Open your Linux terminal and navigate to your `Downloads` directory:
+```bash
+cd ~/Downloads
+```
+
+### Step 4 — Check the Downloaded Package
+Verify that the package file exists in your Downloads directory:
+```bash
+ls
+```
+You should see `soundsync_1.0.0_amd64.deb` listed in the terminal output.
+
+### Step 5 — Install SoundSync
+Run the following installation command:
+```bash
+sudo apt install ./soundsync_1.0.0_amd64.deb
+```
+*Note: The terminal will prompt you to enter your administrator (sudo) password to complete the package installation.*
+
+### Step 6 — Launch SoundSync
+Once installation finishes, launch SoundSync from your application launcher or desktop environment menu:
+```text
+Applications → SoundSync
+```
+
+### Step 7 — Verify Installation
+- SoundSync launches in a sleek, frameless desktop window.
+- The SoundSync branding logo appears in your system dock/taskbar.
+- The 3D audio-reactive orb initializes in the center of the screen.
+- Click **Start Sync** to begin audio reactivity.
+
+---
+
+## 📦 Alternative: AppImage
+
+If you prefer a portable executable that runs without installation:
+
+1. Open the [SoundSync GitHub Releases](https://github.com/Sujoy2006/SoundSyncApp/releases) page in your browser.
+2. Under **Assets**, download `SoundSync-1.0.0.AppImage`.
+3. Open your terminal and navigate to your `Downloads` folder:
+   ```bash
+   cd ~/Downloads
+   ```
+4. Grant execution permissions to the AppImage:
+   ```bash
+   chmod +x ./SoundSync-1.0.0.AppImage
+   ```
+5. Launch SoundSync directly:
+   ```bash
+   ./SoundSync-1.0.0.AppImage
+   ```
+
+---
+
 ## ✨ Key Features
 
 ### 🎤 Outer Audio Sync Mode
@@ -62,6 +138,20 @@ Tune visual behavior in real time:
 
 ### 💤 Automatic Control Standby
 - **Idle Auto-Hide**: Start/Stop Sync control container automatically fades out after 3 seconds of cursor inactivity (`3000ms`) and smoothly restores on mouse movement.
+
+---
+
+## 🎮 Controls & Interface
+
+| Control | Action / Behavior |
+|---------|-------------------|
+| **Start / Stop Sync** | Toggles audio capture and visualizer activity. |
+| **Settings (⚙)** | Opens the glassmorphic Settings panel for audio mode, palettes, and dynamics. |
+| **Minimize (─)** | Minimizes SoundSync to the desktop panel/dock via native IPC. |
+| **Maximize / Restore (⛶)** | Toggles native Electron window maximize state. |
+| **Close (×)** | Closes the SoundSync application. |
+| **Custom Title Bar** | Click and drag anywhere on the top bar to move the window. |
+| **Mouse Standby** | Leave cursor idle for 3 seconds to auto-hide bottom sync controls. |
 
 ---
 
@@ -118,80 +208,8 @@ On Linux systems, Inner Audio mode leverages PipeWire's native audio graph:
 
 ## 🖥️ Supported Platforms
 
-- **Linux (x64)**: Fully supported (PipeWire / PulseAudio integration, AppImage, `.deb`).
+- **Linux (x64)**: Fully supported (PipeWire integration, AppImage, `.deb`).
 - **Windows / macOS**: Planned in future roadmap updates (currently Linux-focused).
-
----
-
-## 📦 Installation & Packaging
-
-### Debian / Ubuntu (`.deb`)
-Install the pre-built Debian package:
-```bash
-sudo apt install ./dist/soundsync_1.0.0_amd64.deb
-```
-
-### AppImage
-Make the AppImage executable and launch:
-```bash
-chmod +x ./dist/SoundSync-1.0.0.AppImage
-./dist/SoundSync-1.0.0.AppImage
-```
-
----
-
-## 💻 Development Setup
-
-### Prerequisites
-- Node.js (v18+ recommended)
-- npm
-- Linux desktop environment with PipeWire or PulseAudio
-
-### Installation & Local Run
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Sujoy2006/SoundSyncApp.git
-   cd SoundSync
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Launch in development mode:
-   ```bash
-   npm start
-   ```
-
----
-
-## 🔨 Build Instructions
-
-Package SoundSync into Linux AppImage and `.deb` distribution packages:
-
-```bash
-# Build Linux packages (AppImage & deb)
-npm run build:linux
-
-# Build cross-platform outputs configured in package.json
-npm run build
-```
-Built binaries will be generated inside the `./dist` directory.
-
----
-
-## 🎮 Controls & Interface
-
-| Control | Action / Behavior |
-|---------|-------------------|
-| **Start / Stop Sync** | Toggles audio capture and visualizer activity. |
-| **Settings (⚙)** | Opens the glassmorphic Settings panel for audio mode, palettes, and dynamics. |
-| **Minimize (─)** | Minimizes SoundSync to the desktop panel/dock via native IPC. |
-| **Maximize / Restore (⛶)** | Toggles native Electron window maximize state. |
-| **Close (×)** | Closes the SoundSync application. |
-| **Custom Title Bar** | Click and drag anywhere on the top bar to move the window. |
-| **Mouse Standby** | Leave cursor idle for 3 seconds to auto-hide bottom sync controls. |
 
 ---
 
